@@ -1,0 +1,38 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: prod  # Isso é importante para acessar os secrets do ambiente!
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init -backend-config=${{ vars.TF_BACKEND }}
+          
+      - name: Terraform Plan
+        run: |
+          terraform plan -var-file=${{ vars.TF_VARS }} -out=tfplan
+          
+      - name: Terraform Apply
+        run: |
+          terraform apply tfplan
