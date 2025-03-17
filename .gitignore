@@ -1,0 +1,16 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+terraform.tfvars
+backend.hcl
+.terraform/
+.terraform.lock.hcl
+*.pem
+*.key
+*.tfvars
+.env
+credentials.json
+# Miscellaneous
+.DS_Store
+*.log

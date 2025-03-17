@@ -1,0 +1,20 @@
+aws_region          = "us-east-1"
+instance_type       = "t3.large"
+spot_price          = "0.055"
+volume_size         = 40
+ami_id              = "ami-xxxxxxxxxxxxxxxxx"  # Amazon Linux 2023
+
+# IDs dos recursos existentes (substitua com valores reais em seu ambiente)
+vpc_id                    = "vpc-xxxxxxxxxxxxxxxxx"
+subnet_id                 = "subnet-xxxxxxxxxxxxxxxxx"
+private_subnet_ids        = ["subnet-xxxxxxxxxxxxxxxxx", "subnet-xxxxxxxxxxxxxxxxx"]
+nat_instance_id           = "i-xxxxxxxxxxxxxxxxx"
+instance_security_group_id = "sg-xxxxxxxxxxxxxxxxx"
+
+# Configuração do autoscaling
+min_size           = 4
+max_size           = 4
+desired_capacity   = 4
+
+# IAM Role
+create_iam_role    = true

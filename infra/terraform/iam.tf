@@ -1,4 +1,3 @@
-# Criar um novo arquivo iam.tf
 resource "aws_iam_role" "instance_role" {
   count = var.create_iam_role ? 1 : 0
   name  = "spot-instance-role-${var.environment}"
@@ -40,7 +39,12 @@ resource "aws_iam_role_policy" "instance_policy" {
         Action = [
           "ec2:DescribeVolumes",
           "ec2:AttachVolume",
-          "ec2:DetachVolume"
+          "ec2:DetachVolume",
+          "ec2:CreateSnapshot",
+          "ec2:DeleteSnapshot",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeInstances",
+          "ec2:CreateTags"
         ],
         Effect   = "Allow",
         Resource = "*"
