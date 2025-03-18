@@ -146,7 +146,7 @@ resource "aws_launch_template" "spot_template" {
     WantedBy=multi-user.target
     EOF
     
-    systemctl enable spot-interruption-monitor
+    systemctl enable spot-interruption-monitor,
     systemctl start spot-interruption-monitor
     
     # Executar script de anexação de volume
