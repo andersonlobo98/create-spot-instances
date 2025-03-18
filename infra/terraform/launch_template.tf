@@ -2,6 +2,7 @@ resource "aws_launch_template" "spot_template" {
   name_prefix   = "spot-template-${var.environment}-"
   image_id      = var.ami_id
   instance_type = var.instance_type
+  }
   
   block_device_mappings {
     device_name = "/dev/sda1"
