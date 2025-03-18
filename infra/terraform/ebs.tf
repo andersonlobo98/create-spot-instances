@@ -4,7 +4,7 @@ resource "aws_ebs_volume" "persistent_storage" {
   size              = var.volume_size
   type              = "gp3"
   encrypted         = true
-  }
+  
   
   tags = {
     Name          = "spot-persistent-volume-${var.environment}-${count.index}"
@@ -14,6 +14,7 @@ resource "aws_ebs_volume" "persistent_storage" {
     CostCenter    = "Labs"
     Project       = "SpotLab"
   }
+}
 
 # Um snapshot inicial vazio para backup
 resource "aws_ebs_snapshot" "initial_snapshot" {

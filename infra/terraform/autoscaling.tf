@@ -1,3 +1,7 @@
+locals {
+  vpc_zone_identifiers = length(var.private_subnet_ids) > 0 ? var.private_subnet_ids : [var.subnet_id]
+}
+
 resource "aws_autoscaling_group" "spot_asg" {
   name                = "spot-asg-${var.environment}"
   min_size            = var.min_size
