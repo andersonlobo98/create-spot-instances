@@ -128,7 +128,7 @@ chmod +x /usr/local/bin/attach-volumes.sh
 chmod +x /usr/local/bin/handle-spot-interruption.sh
 
 # Monitorar interrupções de instâncias spot
-cat > /etc/systemd/system/spot-interruption-monitor.service << 'EOF'
+cat > /etc/systemd/system/spot-interruption-monitor.service << 'EOT'
 [Unit]
 Description=Monitor Spot Instance Interruption
 After=network.target
@@ -139,13 +139,13 @@ ExecStart=/bin/bash -c "while true; do if curl -s http://169.254.169.254/latest/
 
 [Install]
 WantedBy=multi-user.target
-EOF
+EOT
 
 systemctl enable spot-interruption-monitor
 systemctl start spot-interruption-monitor
 
 # Exportar a variável de ambiente
-export ENVIRONMENT="${environment}"
+export ENVIRONMENT="${var.environment}"
 
 # Executar script de anexação de volume
 /usr/local/bin/attach-volumes.sh

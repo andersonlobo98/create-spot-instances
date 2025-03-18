@@ -4,7 +4,8 @@ resource "aws_ebs_volume" "persistent_storage" {
   size              = var.volume_size
   type              = "gp3"
   encrypted         = true
-
+  }
+  
   tags = {
     Name          = "spot-persistent-volume-${var.environment}-${count.index}"
     Environment   = var.environment
