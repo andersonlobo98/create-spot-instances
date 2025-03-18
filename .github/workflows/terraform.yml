@@ -20,14 +20,13 @@ jobs:
         working-directory: ./infra/terraform
     
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.3.7
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -35,59 +34,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Create backend.tf
-        run: echo "${{ secrets.TF_BACKEND }}" > backend.tf
-
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
+          mask-aws-account-id: true
 
       - name: Terraform Init
-        id: init
         run: terraform init -backend-config=production.tfbackend
 
       - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
+        run: terraform validate
 
       - name: Terraform Plan
-        id: plan
+        run: terraform plan -var-file=terraform.tfvars
         if: github.event_name == 'pull_request'
-        run: terraform plan -var-file=terraform.tfvars -input=false -no-color
-        continue-on-error: false
-
-      - name: Update Pull Request
-        uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-            
-            <details><summary>Show Plan</summary>
-            
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-            
-            </details>
-            
-            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-              
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
 
       - name: Terraform Apply
+        run: terraform apply -var-file=terraform.tfvars -auto-approve
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: terraform apply -var-file=terraform.tfvars -auto-approve -input=false
