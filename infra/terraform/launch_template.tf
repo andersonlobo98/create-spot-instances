@@ -133,18 +133,18 @@ resource "aws_launch_template" "spot_template" {
     chmod +x /usr/local/bin/handle-spot-interruption.sh
     
     # Monitorar interrupções de instâncias spot
-    cat > /etc/systemd/system/spot-interruption-monitor.service << 'EOF'
+    cat > /etc/systemd/system/spot-interruption-monitor.service << 'SERVICEDEF'
     [Unit]
     Description=Monitor Spot Instance Interruption
     After=network.target
-    
+
     [Service]
     Type=simple
     ExecStart=/bin/bash -c "while true; do if curl -s http://169.254.169.254/latest/meta-data/spot/instance-action; then /usr/local/bin/handle-spot-interruption.sh; break; fi; sleep 5; done"
-    
+
     [Install]
     WantedBy=multi-user.target
-    EOF
+    SERVICEDEF
     
     systemctl enable spot-interruption-monitor,
     systemctl start spot-interruption-monitor
