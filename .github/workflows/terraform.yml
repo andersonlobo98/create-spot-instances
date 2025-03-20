@@ -38,7 +38,10 @@ jobs:
 
       - name: Criar arquivo terraform.tfvars
         run: |
-          echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
+          echo "${{ secrets.TERRAFORM_TFVARS }}" | tr -d '\r' > terraform.tfvars
+
+      - name: Verificar conteúdo do arquivo
+        run: cat terraform.tfvars
 
       - name: Terraform Init
         run: terraform init -backend-config=production.tfbackend
