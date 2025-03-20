@@ -37,7 +37,8 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Criar arquivo terraform.tfvars
-        run: echo "${{ secrets.TERRAFORM_TFVARS }}" > terraform.tfvars
+        run: |
+          echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
 
       - name: Terraform Init
         run: terraform init -backend-config=production.tfbackend
