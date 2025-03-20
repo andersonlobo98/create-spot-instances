@@ -14,5 +14,5 @@ data "aws_instance" "nat" {
 
 # Se o security group da NAT não for especificado, obter os security groups da instância
 locals {
-  nat_security_group_id = var.nat_security_group_id != "" ? var.nat_security_group_id : data.aws_instance.nat.vpc_security_group_ids[0]
+  nat_security_group_id = var.nat_security_group_id != "" ? var.nat_security_group_id : tolist(data.aws_instance.nat.vpc_security_group_ids)[0]
 }
