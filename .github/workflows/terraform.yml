@@ -36,9 +36,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Criar arquivo terraform.tfvars
+      - name: Criar arquivo terraform.tfvars (Base64)
         run: |
-          echo "${{ secrets.TERRAFORM_TFVARS }}" | tr -d '\r' > terraform.tfvars
+          echo "${{ secrets.TERRAFORM_TFVARS_BASE64 }}" | base64 -d > terraform.tfvars
 
       - name: Verificar conteúdo do terraform.tfvars
         run: |
