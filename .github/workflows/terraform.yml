@@ -40,6 +40,12 @@ jobs:
         run: |
           echo "${{ secrets.TERRAFORM_TFVARS }}" | tr -d '\r' > terraform.tfvars
 
+      - name: Verificar conteúdo do terraform.tfvars
+        run: |
+        echo "=== Início do arquivo ==="
+        cat -A terraform.tfvars  # Mostra caracteres especiais
+        echo "=== Fim do arquivo ==="
+
       - name: Verificar conteúdo do arquivo
         run: cat terraform.tfvars
 
