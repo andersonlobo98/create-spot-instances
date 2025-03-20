@@ -12,14 +12,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  terraform:
-    name: "Terraform"
+  plan:
+    name: "Terraform - Plan"
     runs-on: ubuntu-latest
-    environment: prod
     defaults:
       run:
         working-directory: ./infra/terraform
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -36,33 +34,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Criar arquivo terraform.tfvars
-        run: |
-          cat <<EOF > terraform.tfvars
-          aws_region = "${{ secrets.AWS_REGION }}"
-          instance_type = "${{ secrets.INSTANCE_TYPE }}"
-          spot_price = "${{ secrets.SPOT_PRICE }}"
-          ami_id = "${{ secrets.AMI_ID }}"
-          vpc_id = "${{ secrets.VPC_ID }}"
-          subnet_id = "${{ secrets.SUBNET_ID }}"
-          nat_instance_id = "${{ secrets.NAT_INSTANCE_ID }}"
-          instance_security_group_id = "${{ secrets.INSTANCE_SECURITY_GROUP_ID }}"
-          EOF
-
       - name: Terraform Init
-        run: terraform init -backend-config=production.tfbackend
+        run: terraform init
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=terraform.tfvars -lock=false
+        run: terraform plan -var-file=terraform.tfvars
 
   apply:
-    name: "Terraform Apply"
-    needs: terraform
+    name: "Terraform - Apply"
     runs-on: ubuntu-latest
-    environment: prod
+    needs: plan
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     defaults:
       run:
         working-directory: ./infra/terraform
@@ -82,5 +67,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Terraform Init
+        run: terraform init
+
       - name: Terraform Apply
-        run: terraform apply -var-file=terraform.tfvars -auto-approve -lock=false
+        run: terraform apply -var-file=terraform.tfvars -auto-approve
