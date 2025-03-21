@@ -2,25 +2,25 @@ resource "aws_launch_template" "spot_template" {
   name_prefix   = "spot-template-${var.environment}-"
   image_id      = var.ami_id
   instance_type = var.instance_type
-  
+
   block_device_mappings {
     device_name = "/dev/sda1"
-    
+
     ebs {
       volume_size           = 10
       volume_type           = "gp3"
       delete_on_termination = true
     }
   }
-  
+
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [var.instance_security_group_id]
   }
-  
+
   instance_market_options {
     market_type = "spot"
-    
+
     spot_options {
       max_price                      = var.spot_price
       instance_interruption_behavior = "terminate"
@@ -29,26 +29,26 @@ resource "aws_launch_template" "spot_template" {
 
   tag_specifications {
     resource_type = "instance"
-    
+
     tags = {
       Name        = "spot-instance-${var.environment}"
       Environment = var.environment
     }
   }
-  
+
   tag_specifications {
     resource_type = "volume"
-    
+
     tags = {
       Name        = "spot-volume-${var.environment}"
       Environment = var.environment
     }
   }
-  
+
   iam_instance_profile {
     name = var.create_iam_role ? aws_iam_instance_profile.instance_profile[0].name : var.instance_iam_role_name
-  } 
-  
+  }
+
   user_data = base64encode(<<-EOF
   #!/bin/bash
   # Instalar dependências
@@ -92,7 +92,7 @@ resource "aws_launch_template" "spot_template" {
       echo "Falha ao anexar o volume. Saindo."
       exit 1
     fi
-    
+
     # Esperar o volume ficar disponível
     echo "Aguardando o volume $VOLUME_ID ficar disponível..."
     COUNTER=0
@@ -105,10 +105,10 @@ resource "aws_launch_template" "spot_template" {
         exit 1
       fi
     done
-    
+
     # Criar diretório de montagem
     mkdir -p /data
-    
+
     # Verificar se o volume já está formatado
     FORMATTED=$(blkid /dev/xvdf || echo "")
     if [ -z "$FORMATTED" ]; then
@@ -121,20 +121,20 @@ resource "aws_launch_template" "spot_template" {
     else
       echo "Volume já está formatado."
     fi
-    
+
     # Montar o volume
     echo "Montando volume em /data..."
     if ! mount /dev/xvdf /data; then
       echo "Falha ao montar o volume. Saindo."
       exit 1
     fi
-    
+
     # Configurar montagem automática
     if ! grep -q "/dev/xvdf" /etc/fstab; then
       echo "Configurando montagem automática..."
       echo "/dev/xvdf /data ext4 defaults,nofail 0 2" >> /etc/fstab
     fi
-    
+
     echo "Volume $VOLUME_ID montado com sucesso em /data."
   else
     echo "Nenhum volume persistente disponível encontrado."
@@ -157,13 +157,13 @@ resource "aws_launch_template" "spot_template" {
   if [ "$VOLUME_ID" != "None" ] && [ ! -z "$VOLUME_ID" ]; then
     echo "Criando snapshot do volume $VOLUME_ID antes da interrupção..."
     SNAPSHOT_ID=$(aws ec2 create-snapshot --region $REGION --volume-id $VOLUME_ID --description "Spot interruption snapshot for $INSTANCE_ID" --query SnapshotId --output text)
-    
+
     if [ -z "$SNAPSHOT_ID" ]; then
       echo "Falha ao criar snapshot. Continuando com desanexação do volume."
     else
       echo "Snapshot $SNAPSHOT_ID criado. Adicionando tags..."
       aws ec2 create-tags --region $REGION --resources $SNAPSHOT_ID --tags Key=Name,Value="spot-interruption-snapshot-prod" Key=Environment,Value=prod
-      
+
       # Aguardar snapshot completar (com timeout)
       echo "Aguardando conclusão do snapshot..."
       COUNTER=0
@@ -174,17 +174,17 @@ resource "aws_launch_template" "spot_template" {
           echo "Snapshot concluído com sucesso."
           break
         fi
-        
+
         COUNTER=$((COUNTER+1))
         if [ $COUNTER -ge $MAX_WAIT ]; then
           echo "Tempo limite esgotado aguardando o snapshot. Continuando com desanexação do volume."
           break
         fi
-        
+
         sleep 5
       done
     fi
-    
+
     # Desmontar o volume
     echo "Desmontando o volume..."
     if mount | grep -q "/data"; then
@@ -194,7 +194,7 @@ resource "aws_launch_template" "spot_template" {
         umount -f /data
       fi
     fi
-    
+
     # Desanexar o volume
     echo "Desanexando o volume $VOLUME_ID..."
     aws ec2 detach-volume --region $REGION --volume-id $VOLUME_ID
@@ -230,3 +230,5 @@ resource "aws_launch_template" "spot_template" {
 
   # Executar script de anexação de volume
   /usr/local/bin/attach-volumes.sh
+EOF
+}
