@@ -49,7 +49,7 @@ resource "aws_launch_template" "spot_template" {
     name = var.create_iam_role ? aws_iam_instance_profile.instance_profile[0].name : var.instance_iam_role_name
   }
 
-  user_data = base64encode(<<-EOF
+user_data = base64encode(<<-EOF
   #!/bin/bash
   # Instalar dependências
   apt-get update -y
@@ -231,4 +231,4 @@ resource "aws_launch_template" "spot_template" {
   # Executar script de anexação de volume
   /usr/local/bin/attach-volumes.sh
 EOF
-}
+)
