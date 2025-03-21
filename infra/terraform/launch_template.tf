@@ -12,6 +12,7 @@ resource "aws_launch_template" "spot_template" {
       delete_on_termination = true
     }
   }
+}
 
   network_interfaces {
     associate_public_ip_address = false
