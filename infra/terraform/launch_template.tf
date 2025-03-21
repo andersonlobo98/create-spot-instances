@@ -18,14 +18,14 @@ resource "aws_launch_template" "spot_template" {
     security_groups             = [var.instance_security_group_id]
   }
 
-  instance_market_options {
-    market_type = "spot"
-
-    spot_options {
-      max_price                      = var.spot_price
-      instance_interruption_behavior = "terminate"
-    }
-  }
+#  instance_market_options {
+#    market_type = "spot"
+#
+#    spot_options {
+#      max_price                      = var.spot_price
+#      instance_interruption_behavior = "terminate"
+#    }
+#  }
 
   tag_specifications {
     resource_type = "instance"
