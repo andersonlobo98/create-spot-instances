@@ -8,8 +8,8 @@ resource "aws_autoscaling_group" "spot_asg" {
   max_size            = var.max_size
   desired_capacity    = var.desired_capacity
   
-  # Usar múltiplas subnets para alta disponibilidade
-  vpc_zone_identifier = var.private_subnet_ids
+  # Use the local variable for subnet IDs
+  vpc_zone_identifier = local.vpc_zone_identifiers
 
   mixed_instances_policy {
     instances_distribution {
