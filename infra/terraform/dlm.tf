@@ -56,5 +56,5 @@ resource "aws_iam_role" "dlm_lifecycle_role" {
 # Anexar a política gerenciada pela AWS para DLM
 resource "aws_iam_role_policy_attachment" "dlm_lifecycle" {
   role       = aws_iam_role.dlm_lifecycle_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDLMServiceRole"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSDataLifecycleManagerServiceRole"
 }
