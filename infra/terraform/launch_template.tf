@@ -12,7 +12,6 @@ resource "aws_launch_template" "spot_template" {
       delete_on_termination = true
     }
   }
-}
 
   network_interfaces {
     associate_public_ip_address = false
@@ -49,7 +48,7 @@ resource "aws_launch_template" "spot_template" {
   iam_instance_profile {
     name = var.create_iam_role ? aws_iam_instance_profile.instance_profile[0].name : var.instance_iam_role_name
   }
-
+}
 user_data = base64encode(<<-EOF
   #!/bin/bash
   # Instalar dependências
